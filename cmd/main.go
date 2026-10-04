@@ -28,8 +28,9 @@ func main() {
 
 	workers := 8
 	var wg sync.WaitGroup
-	for i := 0; i < workers; i++ {
-		wg.Add(1)
+	wg.Add(workers)
+
+	for range workers {
 		go func() {
 			defer wg.Done()
 			internal.Worker(jobs, results, transfer)
