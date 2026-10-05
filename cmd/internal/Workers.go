@@ -5,7 +5,7 @@ type Result struct {
 	Err       error
 }
 
-func Worker(jobs <-chan Chunk, results chan<- Result, transfer *Transfer) {
+func Worker(jobs <-chan Chunk, results chan<- Result, transfer *Transfer, address string) {
 	for chunk := range jobs {
 		data, err := transfer.ReadChunk(chunk)
 		if err != nil {
@@ -13,7 +13,7 @@ func Worker(jobs <-chan Chunk, results chan<- Result, transfer *Transfer) {
 			continue
 		}
 
-		err = UploadChunk(chunk, data)
+		err = UploadChunk(chunk, data, address)
 		results <- Result{
 			ChunkInfo: chunk,
 			Err:       err,

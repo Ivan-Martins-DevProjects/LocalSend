@@ -6,6 +6,7 @@ import (
 )
 
 type Transfer struct {
+	IP          string
 	File        *os.File
 	FileName    string
 	FileSize    int64

@@ -1,30 +1,23 @@
-package main
+package internal
 
 import (
 	"fmt"
 	"os"
 	"sync"
-
-	"Ivan-Martins-DevProjects/localsend/cmd/internal"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Uso: go run ./cmd <caminho-do-arquivo>")
-		os.Exit(1)
-	}
+func SendFile(filepath, address string) {
+	filePath := filepath
 
-	filePath := os.Args[1]
-
-	transfer, err := internal.NewTransfer(filePath)
+	transfer, err := NewTransfer(filePath)
 	if err != nil {
 		fmt.Println("Erro ao abrir arquivo:", err)
 		os.Exit(1)
 	}
 	defer transfer.File.Close()
 
-	jobs := make(chan internal.Chunk)
-	results := make(chan internal.Result)
+	jobs := make(chan Chunk)
+	results := make(chan Result)
 
 	workers := 8
 	var wg sync.WaitGroup
@@ -33,7 +26,7 @@ func main() {
 	for range workers {
 		go func() {
 			defer wg.Done()
-			internal.Worker(jobs, results, transfer)
+			Worker(jobs, results, transfer, address)
 		}()
 	}
 
@@ -50,7 +43,7 @@ func main() {
 		close(results)
 	}()
 
-	if !internal.ValidateResults(results, transfer) {
+	if !ValidateResults(results, transfer) {
 		os.Exit(1)
 	}
 }
