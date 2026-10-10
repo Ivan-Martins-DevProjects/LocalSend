@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
+
+	"Ivan-Martins-DevProjects/localsend/cmd/internal/config"
 )
 
 func SendFile(filepath, address string) {
@@ -19,7 +21,12 @@ func SendFile(filepath, address string) {
 	jobs := make(chan Chunk)
 	results := make(chan Result)
 
-	workers := 8
+	cfg, err := config.GetConfig()
+	if err != nil {
+		fmt.Printf("Erro ao carregar configuração: %v", err)
+	}
+	workers := cfg.Workers
+
 	var wg sync.WaitGroup
 	wg.Add(workers)
 

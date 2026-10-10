@@ -3,9 +3,9 @@ package internal
 import (
 	"log"
 	"os"
-)
 
-const ChunkSize int64 = 4 * 1024 * 1024
+	"Ivan-Martins-DevProjects/localsend/cmd/internal/config"
+)
 
 type Chunk struct {
 	Index  int
@@ -14,6 +14,11 @@ type Chunk struct {
 }
 
 func NewTransfer(path string) (*Transfer, error) {
+	cfg, err := config.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -26,21 +31,21 @@ func NewTransfer(path string) (*Transfer, error) {
 
 	fileSize := info.Size()
 
-	totalChunks := int((fileSize + ChunkSize - 1) / ChunkSize)
+	totalChunks := int((fileSize + cfg.BufferSize - 1) / cfg.BufferSize)
 	chunks := make([]Chunk, 0, totalChunks)
 
 	log.Println("Processando arquivo...")
 	for i := 0; i < totalChunks; i++ {
-		// Cada chunk possui ChunkSize bytes.
+		// Cada chunk possui cfg.BufferSize bytes.
 		// Para descobrir onde um chunk começa no arquivo, multiplicamos
 		// seu índice (i) pelo tamanho de um chunk.
-		// Ex.: i = 2 e ChunkSize = 1024 => offset = 2048.
-		offset := int64(i) * ChunkSize
+		// Ex.: i = 2 e cfg.BufferSize = 1024 => offset = 2048.
+		offset := int64(i) * cfg.BufferSize
 
 		log.Printf("Carregado: %d/%d", i+1, totalChunks)
-		size := ChunkSize
+		size := cfg.BufferSize
 		remaining := fileSize - offset
-		if remaining < ChunkSize {
+		if remaining < cfg.BufferSize {
 			size = remaining
 		}
 
