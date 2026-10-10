@@ -5,7 +5,7 @@ import (
 	"errors"
 	"os"
 
-	apperror "Ivan-Martins-DevProjects/localsend/cmd/internal/errors"
+	apperror "Ivan-Martins-DevProjects/localsend/cmd/internal/app_errors"
 )
 
 type Config struct {
@@ -22,14 +22,19 @@ var defaultConfig = &Config{
 	BufferSize: 1024,
 }
 
-func GetConfig() (*Config, error) {
+func FindFile(path string) error {
 	_, err := os.Stat(path)
-
-	if errors.Is(err, os.ErrNotExist) {
-		if err := defaultConfig.SaveConfig(); err != nil {
-			return nil, err
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return apperror.FileNotFound("Arquivo não encontrado", err)
 		}
+		return apperror.InternalServerError("Erro ao localizar arquivo", err)
 	}
+
+	return nil
+}
+
+func GetConfig() (*Config, error) {
 
 	data, err := os.ReadFile(path)
 	if err != nil {

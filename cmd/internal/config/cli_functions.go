@@ -5,9 +5,25 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	apperror "Ivan-Martins-DevProjects/localsend/cmd/internal/app_errors"
 )
 
 func ListConfig() error {
+	var cfg *Config
+
+	if err := FindFile(path); err != nil {
+		if err.Error() == apperror.FILE_NOT_FOUND {
+			err = defaultConfig.SaveConfig()
+			if err != nil {
+				return err
+			}
+			cfg = defaultConfig
+		}
+
+		return err
+	}
+
 	cfg, err := GetConfig()
 	if err != nil {
 		return err
